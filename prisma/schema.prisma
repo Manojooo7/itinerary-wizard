@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String      @id @default(cuid())
+  clerkUserId   String      @unique
+  email         String      @unique
+  name          String?
+  imageUrl      String?
+  itineraries   Itinerary[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Supplier {
+  id          String      @id @default(cuid())
+  name        String
+  email       String?     @unique
+  phone       String?
+  website     String?
+  imageUrl    String?
+  contacts    String[]
+  itineraries Itinerary[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Itinerary {
+  id                     String    @id @default(cuid())
+  itineraryId            String    
+  name                   String?
+  imageUrl               String?
+  plans                  String[]
+  termsAndConditions     String?             // Terms & Conditions text
+  validTill              DateTime?           // Valid date for the itinerary offer/details
+  requireSignIn          Boolean   @default(false)  // Flag whether sign in is required
+  flightDetails          String[]             // Details about flights
+  hotelsDetails          String[]             // Details about hotels
+  transportationDetails  String?             // Vehicles or similar
+  inclusion              String[]             // Inclusive services
+  exclusion              String[]             // Excluded services
+  userId                 String
+  createdBy              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  supplierId             String?              // Optional relation to Supplier
+  supplier               Supplier? @relation(fields: [supplierId], references: [id])
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+}
