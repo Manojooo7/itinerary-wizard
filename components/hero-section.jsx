@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { DotPattern } from "./magicui/dot-pattern";
 import { RainbowButton } from "./magicui/rainbow-button";
+import Link from "next/link";
 
 export const HeroSection = () => {
-    const router = useRouter    
+    const router = useRouter()    
 
   const handleGetStarted = () => {
     router.push('/itineraries/create-itinerary');
@@ -44,9 +45,11 @@ export const HeroSection = () => {
             Save countless hours, create perfect itineraries, and make your travel dreams come true.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <RainbowButton onClick={handleGetStarted} size="lg">Get Started
+            <Link href="/itineraries/create-itinerary">
+            <RainbowButton size="lg">Get Started
                 <ArrowRight size={21} className="mr-3"/>
             </RainbowButton>
+            </Link>
           </div>
           <div className="mt-16 flex justify-center gap-6 items-center text-white/40">
             <div className="h-8 w-8">

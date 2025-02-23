@@ -4,6 +4,7 @@ import { Header } from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
+import { Toaster } from "sonner";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -27,19 +28,20 @@ export default function RootLayout({ children }) {
           baseTheme: dark,
         }}
       >
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <ThemeProvider
         attribute="class"
         defaultTheme="dark"
         enableSystem
         disableTransitionOnChange
       >
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          >
           <Header/>
+          <main>
           {children}
-        </body>
+          </main>
+          <Toaster richColors/>
         </ThemeProvider>
+        </body>
         </ClerkProvider>
     </html>
   );

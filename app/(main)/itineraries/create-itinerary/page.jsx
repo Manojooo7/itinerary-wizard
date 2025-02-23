@@ -2,7 +2,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import * as z from "zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -32,19 +31,11 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-
-const formSchema = z.object({
-  destinations: z.array(z.string()).min(1, "Add at least one destination"),
-  tourType: z.string(),
-  startDate: z.date(),
-  endDate: z.date(),
-  description: z.string().min(10, "Description should be at least 10 characters"),
-  budget: z.string(),
-  numberOfPeople: z.string(),
-  hotelPreference: z.string(),
-  flightClass: z.string(),
-  foodPreference: z.string(),
-});
+import { itineraryFormSchema } from "@/app/lib/validator";
+import { createItinerary } from "@/actions/generate-itinerary";
+import DisplayItinerary from "../_components/display-itinerary";
+import { RotatingLines } from "react-loader-spinner";
+import { toast } from "sonner";
 
 const tourTypes = [
   "Adventure",
@@ -69,34 +60,51 @@ export default function CreateItinerary() {
         formState,
         ...formMethods
       } = useForm({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(itineraryFormSchema),
         defaultValues: {
           destinations: [],
           description: "",
           budget: "",
           numberOfPeople: "1",
+          source: "India",
+          tourType: ""
         },
       });
 
   const [destinations, setDestinations] = useState([]);
   const [newDestination, setNewDestination] = useState("");
+  const [itineraryData, setItineraryData] = useState(null)
+  const [loading, setLoading] = useState(false)
 
-  function onSubmit(values) {
-    console.log(values);
+  async function onSubmit(values) {
+    try {
+      setLoading(true)
+      console.log("Form Values:", values);
+      console.log("Form Errors:", formState.errors);
+      const response = await createItinerary(values)
+      // const data = JSON.parse(response)
+      setItineraryData(response)
+      toast.success("Your Itinere is created")
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast.error("faild to generate itinerary", error.message)
+    }finally{
+      setLoading(false)
+    }
   }
 
   const addDestination = () => {
     if (newDestination.trim()) {
       setDestinations([...destinations, newDestination.trim()]);
       setNewDestination("");
-      form.setValue("destinations", [...destinations, newDestination.trim()]);
+      setValue("destinations", [...destinations, newDestination.trim()]);
     }
   };
 
   const removeDestination = (index) => {
     const newDestinations = destinations.filter((_, i) => i !== index);
     setDestinations(newDestinations);
-    form.setValue("destinations", newDestinations);
+    setValue("destinations", newDestinations);
   };
 
   return (
@@ -113,41 +121,57 @@ export default function CreateItinerary() {
 
         <Form {...formMethods}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            <div className="space-y-4">
-              <FormLabel>Destinations</FormLabel>
-              <div className="flex gap-2 mb-2">
-                <Input
-                  value={newDestination}
-                  onChange={(e) => setNewDestination(e.target.value)}
-                  placeholder="Add a destination"
-                  className="flex-1"
-                />
-                <Button type="button" onClick={addDestination}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="">
+                <FormField
+                control={control}
+                name="source"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Source</FormLabel>
+                    <FormControl>
+                      <Input type="text" placeholder="Enter your source" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               </div>
-              <div className="flex flex-wrap gap-2">
-                {destinations.map((dest, index) => (
-                  <div
-                    key={index}
-                    className="bg-white/10 px-3 py-1 rounded-full flex items-center gap-2"
-                  >
-                    <span>{dest}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeDestination(index)}
-                      className="hover:text-red-400"
+              <div className="">
+                <FormLabel>Destinations</FormLabel>
+                <div className="flex gap-2 mb-2">
+                  <Input
+                    value={newDestination}
+                    onChange={(e) => setNewDestination(e.target.value)}
+                    placeholder="Add a destination"
+                  />
+                  <Button type="button" onClick={addDestination}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {destinations.map((dest, index) => (
+                    <div
+                      key={index}
+                      className="bg-white/10 px-3 py-1 rounded-full flex items-center gap-2"
                     >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
+                      <span>{dest}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeDestination(index)}
+                        className="hover:text-red-400"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {formState.errors.destinations && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.destinations.message}
+                  </p>
+                )}
               </div>
-              {formState.errors.destinations && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.destinations.message}
-                </p>
-              )}
             </div>
 
             <FormField
@@ -285,7 +309,7 @@ export default function CreateItinerary() {
                 name="budget"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Budget (USD)</FormLabel>
+                    <FormLabel>Budget (INR) Per Person</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="Enter your budget" {...field} />
                     </FormControl>
@@ -391,6 +415,24 @@ export default function CreateItinerary() {
             </Button>
           </form>
         </Form>
+
+        {itineraryData && (
+          <DisplayItinerary itineraryData={itineraryData}/>
+        )}
+
+        {loading && (
+          <RotatingLines
+          visible={true}
+          height="96"
+          width="96"
+          color="grey"
+          strokeWidth="5"
+          animationDuration="0.75"
+          ariaLabel="rotating-lines-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          />
+        )}
       </motion.div>
     </div>
   );
