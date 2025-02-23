@@ -5,7 +5,8 @@ import Image from "next/image";
 
 const DisplayItinerary = ({ itineraryData }) => {
   if (!itineraryData) return null;
-
+    console.log(itineraryData);
+    
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="container max-w-4xl mx-auto px-4">
@@ -108,7 +109,7 @@ const DisplayItinerary = ({ itineraryData }) => {
           </div>
         </div>
 
-        
+
 
         {/* Travel Tips */}
         <div className="bg-card rounded-lg p-6 shadow-lg">

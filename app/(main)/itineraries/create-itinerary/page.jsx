@@ -30,12 +30,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { itineraryFormSchema } from "@/app/lib/validator";
 import { createItinerary } from "@/actions/generate-itinerary";
 import DisplayItinerary from "../_components/display-itinerary";
 import { RotatingLines } from "react-loader-spinner";
 import { toast } from "sonner";
+import LoadingAnimation from "../_components/loading-animation";
+import { useRouter } from "next/navigation";
 
 const tourTypes = [
   "Adventure",
@@ -75,6 +77,20 @@ export default function CreateItinerary() {
   const [newDestination, setNewDestination] = useState("");
   const [itineraryData, setItineraryData] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [leatestItineraries, setLeatestItineraries] = useState(null)
+  const router = useRouter()
+
+  useEffect(()=>{
+    try {
+      const itineraries = localStorage.getItem("Itineraries")
+      if(itineraries){
+        setLeatestItineraries(JSON.parse(itineraries))
+      }
+    } catch (error) {
+     console.log("No Itinerariees found create itinerary", error);
+      
+    }
+  },[])
 
   async function onSubmit(values) {
     try {
@@ -82,9 +98,15 @@ export default function CreateItinerary() {
       console.log("Form Values:", values);
       console.log("Form Errors:", formState.errors);
       const response = await createItinerary(values)
+      console.log("server response ", response);
+      
       // const data = JSON.parse(response)
       setItineraryData(response)
+      const updatedItineraries = [...leatestItineraries, response]
+      localStorage.setItem("Itineraries",  JSON.stringify(updatedItineraries))
+      localStorage.setItem("NewItinerary", JSON.stringify(response))
       toast.success("Your Itinere is created")
+      router.push("/itineraries/create-itinerary/new-itinerary")
     } catch (error) {
       console.error("Submission error:", error);
       toast.error("faild to generate itinerary", error.message)
@@ -92,6 +114,11 @@ export default function CreateItinerary() {
       setLoading(false)
     }
   }
+  
+  useEffect(()=>{
+    console.log("Curresnt Itinerary Data: ", itineraryData);
+  }, [itineraryData])
+  
 
   const addDestination = () => {
     if (newDestination.trim()) {
@@ -416,23 +443,11 @@ export default function CreateItinerary() {
           </form>
         </Form>
 
-        {itineraryData && (
+        {/* {itineraryData && (
           <DisplayItinerary itineraryData={itineraryData}/>
-        )}
+        )} */}
 
-        {loading && (
-          <RotatingLines
-          visible={true}
-          height="96"
-          width="96"
-          color="grey"
-          strokeWidth="5"
-          animationDuration="0.75"
-          ariaLabel="rotating-lines-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          />
-        )}
+        {loading && <LoadingAnimation/>}
       </motion.div>
     </div>
   );
