@@ -77,14 +77,14 @@ export default function CreateItinerary() {
   const [newDestination, setNewDestination] = useState("");
   const [itineraryData, setItineraryData] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [leatestItineraries, setLeatestItineraries] = useState(null)
+  const [leatestItineraries, setLeatestItineraries] = useState([])
   const router = useRouter()
 
   useEffect(()=>{
     try {
       const itineraries = localStorage.getItem("Itineraries")
       if(itineraries){
-        setLeatestItineraries(JSON.parse(itineraries))
+        setLeatestItineraries(JSON.parse(itineraries) || [])
       }
     } catch (error) {
      console.log("No Itinerariees found create itinerary", error);
@@ -106,7 +106,7 @@ export default function CreateItinerary() {
       localStorage.setItem("Itineraries",  JSON.stringify(updatedItineraries))
       localStorage.setItem("NewItinerary", JSON.stringify(response))
       toast.success("Your Itinere is created")
-      router.push("/itineraries/create-itinerary/new-itinerary")
+      await router.push("/itineraries/create-itinerary/new-itinerary")
     } catch (error) {
       console.error("Submission error:", error);
       toast.error("faild to generate itinerary", error.message)
