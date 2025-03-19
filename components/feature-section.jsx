@@ -28,7 +28,7 @@ const features = [
 
 export const FeaturesSection = () => {
   return (
-    <section className="py-24 relative bg-gradient-to-b from-muted/50 to-background">
+    <section className="py-24 relative bg-gradient-to-b from-muted/50 to-background" id="features">
       <div className="container px-4 mx-auto">
         <motion.div
           initial={{ opacity: 0 }}

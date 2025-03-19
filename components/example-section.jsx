@@ -26,7 +26,7 @@ const examples = [
 
 export const ExampleSection = () => {
   return (
-    <section className="py-24 relative">
+    <section className="py-24 relative" id="examples">
       <div className="container px-4 mx-auto">
         <motion.div
           initial={{ opacity: 0 }}

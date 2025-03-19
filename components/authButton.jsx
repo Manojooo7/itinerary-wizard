@@ -7,7 +7,7 @@ const AuthButton = () => {
   return (
     <div>
         <SignedOut>
-            <SignInButton forceRedirectUrl="/onboarding" >
+            <SignInButton forceRedirectUrl="/itineraries/create-itinerary" >
                 <Button variant="outline">Login</Button>
             </SignInButton>
         </SignedOut>

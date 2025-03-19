@@ -6,7 +6,7 @@ import { Card, CardContent } from "./ui/card";
 export const AboutSection = () => {
     const MotionAnimation = motion('div')
   return (
-    <section className="py-24 relative">
+    <section className="py-24 relative" id="about">
       <div className="container px-4 mx-auto">
         <motion.div
           initial={{ opacity: 0 }}

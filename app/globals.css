@@ -176,3 +176,15 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+
+.shiny-button {
+  @apply relative inline-flex items-center justify-center px-8 py-4 font-bold overflow-hidden rounded-lg 
+         bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-2xl transition-all duration-300
+         hover:scale-105 hover:shadow-violet-500/25;
+}
+
+.shiny-button::after {
+  @apply absolute inset-0 translate-x-[-100%] animate-[shimmer_2s_infinite]
+         bg-gradient-to-r from-transparent via-white/25 to-transparent content-[''];
+}
